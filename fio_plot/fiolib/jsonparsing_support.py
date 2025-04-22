@@ -99,6 +99,7 @@ def get_json_mapping(mode, record):
         "bs": record["job options"]["bs"],
         "rw": record["job options"]["rw"],
         "bw": record[mode]["bw"],
+        "bw_dev": record[mode]["bw_dev"],
         "iops": record[mode]["iops"],
         "iops_stddev": record[mode]["iops_stddev"],
         "lat": record[mode]["lat_ns"]["mean"],
@@ -158,6 +159,7 @@ def merge_job_data(jobs):
     cpu_sys = []
     iops_stddev = []
     lat_stddev = []
+    bw_dev = []
     latency_ms = []
     latency_us = []
     latency_ns = []
@@ -173,6 +175,7 @@ def merge_job_data(jobs):
         cpu_usr.append(job["cpu_usr"])
         cpu_sys.append(job["cpu_sys"])
         iops_stddev.append(job["iops_stddev"])
+        bw_dev.append(job["bw_dev"])
         lat_stddev.append(job["lat_stddev"])
         latency_ms.append(job["latency_ms"]),
         latency_us.append(job["latency_us"]),
@@ -185,6 +188,7 @@ def merge_job_data(jobs):
     template["cpu_usr"] = statistics.mean(cpu_usr)
     template["cpu_sys"] = statistics.mean(cpu_sys)
     template["iops_stddev"] = statistics.mean(iops_stddev)
+    template["bw_dev"] = statistics.mean(bw_dev)
     template["lat_stddev"] = statistics.mean(lat_stddev)
     template["latency_ms"] = latency_ms
     template["latency_us"] = latency_us

@@ -189,7 +189,9 @@ def return_empty_data_dict(settings, dataset_types):
         "ss_attained": [],
         "ss_data_bw_mean": [],
         "ss_data_iops_mean": [],
-        "hostname_series": []
+        "hostname_series": [],
+        "bw_series_raw": [],
+        "bw_dev_series_raw": []
     }
     return datadict
 
@@ -236,15 +238,15 @@ def get_record_set(settings, dataset, dataset_types):
                             else:
                                 continue
 
-                        
-
                         datadict["fio_version"].append(data["fio_version"])
                         datadict["iops_series_raw"].append(data["iops"])
+                        datadict["bw_series_raw"].append(data["bw"])
                         datadict["lat_series_raw"].append(data["lat"])
                         datadict["bs"].append(data["bs"])
                         if "iops_stddev" in data.keys():
                             datadict["iops_stddev_series_raw"].append(data["iops_stddev"])
                             datadict["lat_stddev_series_raw"].append(data["lat_stddev"])
+                            datadict["bw_dev_series_raw"].append(data["bw_dev"])
                         
                         if "cpu_sys" in data.keys():
                             datadict["cpu"]["cpu_sys"].append(int(round(data["cpu_sys"], 0)))
@@ -268,96 +270,118 @@ def get_record_set(settings, dataset, dataset_types):
 
 
 def scale_data(datadict):
+
+        # 验证数据是否存在
     if not datadict['fio_version']:
         print(f"\n function scale_data did not receive any data\n")
         sys.exit(1)
+        
+    # 从输入字典中提取原始数据
     iops_series_raw = datadict["iops_series_raw"]
     iops_stddev_series_raw = datadict["iops_stddev_series_raw"]
     lat_series_raw = datadict["lat_series_raw"]
     lat_stddev_series_raw = datadict["lat_stddev_series_raw"]
     cpu_usr = datadict["cpu"]["cpu_usr"]
     cpu_sys = datadict["cpu"]["cpu_sys"]
-
+    
+    # 提取带宽数据(如果存在)
+    bw_series_raw = None
+    bw_dev_series_raw = None
+    if "bw_series_raw" in datadict.keys():
+        bw_series_raw = datadict["bw_series_raw"]
+        bw_dev_series_raw = datadict["bw_dev_series_raw"]
+    
+    # 提取稳态数据(如果存在)
+    ss_data_bw_mean = None
+    ss_data_iops_mean = None
     if "ss_settings" in datadict.keys():
         ss_data_bw_mean = datadict["ss_data_bw_mean"]
         ss_data_iops_mean = datadict["ss_data_iops_mean"]
 
-    #
-    # Latency data must be scaled, IOPs will not be scaled.
-    #
-    
+    # ---------- 处理延迟(Latency)数据 ----------
+    # 计算延迟数据的缩放因子并应用缩放
     latency_scale_factor = supporting.get_scale_factor_lat(lat_series_raw)
     scaled_latency_data = supporting.scale_yaxis(lat_series_raw, latency_scale_factor)
-    #
-    # Latency data must be rounded.
-    #
-    scaled_latency_data_rounded = supporting.round_metric_series(
-        scaled_latency_data["data"]
-    )
-    scaled_latency_data["data"] = scaled_latency_data_rounded
-    #
-    # Latency stddev must be scaled with same scale factor as the data
-    #
-    lat_stdev_scaled = supporting.scale_yaxis(
-        lat_stddev_series_raw, latency_scale_factor
-    )
-
+    
+    # 对缩放后的延迟数据进行四舍五入
+    scaled_latency_data["data"] = supporting.round_metric_series(scaled_latency_data["data"])
+    
+    # 使用相同的缩放因子处理延迟标准差
+    lat_stdev_scaled = supporting.scale_yaxis(lat_stddev_series_raw, latency_scale_factor)
     lat_stdev_scaled_rounded = supporting.round_metric_series(lat_stdev_scaled["data"])
-
-    #
-    # Latency data is converted to percent.
-    #
+    
+    # 将延迟标准差转换为百分比并四舍五入
     lat_stddev_percent = supporting.raw_stddev_to_percent(
-        scaled_latency_data["data"], lat_stdev_scaled_rounded
-    )
-
+        scaled_latency_data["data"], lat_stdev_scaled_rounded)
     lat_stddev_percent = [int(x) for x in lat_stddev_percent]
-
     scaled_latency_data["stddev"] = supporting.round_metric_series(lat_stddev_percent)
-    #
-    # IOPS data is rounded
-    iops_series_rounded = supporting.round_metric_series(iops_series_raw)
-    #
-    # IOPS stddev is converted to percent
-    iops_stdev_rounded = supporting.round_metric_series(iops_stddev_series_raw)
-    iops_stdev_rounded_percent = supporting.raw_stddev_to_percent(
-        iops_series_rounded, iops_stdev_rounded
-    )
-    iops_stdev_rounded_percent = [int(x) for x in iops_stdev_rounded_percent]
-    #
-    #
 
-    # Steady state bandwidth data must be scaled.
-    if "ss_settings" in datadict.keys():
-        if datadict["ss_settings"]:
-            ss_bw_scalefactor = supporting.get_scale_factor_bw_ss(ss_data_bw_mean)
-            ss_data_bw_mean = supporting.scale_yaxis(ss_data_bw_mean, ss_bw_scalefactor)
-            ss_data_bw_mean["data"] = supporting.round_metric_series(
-                ss_data_bw_mean["data"]
-            )
+    # ---------- 处理IOPS数据 ----------
+    iops_scale_factor = supporting.get_scale_factor_iops(iops_series_raw)
+    scaled_iops_data = supporting.scale_yaxis(iops_series_raw, iops_scale_factor)
+    # scaled_iops_data = {}
+    # scaled_iops_data["format"] = "IOPS"
+    # 对IOPS数据进行四舍五入
+    scaled_iops_data["data"] = supporting.round_metric_series(scaled_iops_data["data"])
+    
+    # 处理IOPS标准差：四舍五入并转换为百分比
+    iops_stdev_scaled = supporting.scale_yaxis(iops_stddev_series_raw, iops_scale_factor)
+    iops_stdev_scaled_rounded = supporting.round_metric_series(iops_stdev_scaled["data"])
 
-            ss_iops_scalefactor = supporting.get_scale_factor_iops(ss_data_iops_mean)
-            ss_data_iops_mean = supporting.scale_yaxis(
-                ss_data_iops_mean, ss_iops_scalefactor
-            )
-            ss_data_iops_mean["data"] = supporting.round_metric_series(
-                ss_data_iops_mean["data"]
-            )
+    iops_stddev_percent = supporting.raw_stddev_to_percent(
+        scaled_iops_data["data"], iops_stdev_scaled_rounded)
+    iops_stddev_percent = [int(x) for x in iops_stddev_percent]
+    scaled_iops_data["stddev"] = supporting.round_metric_series(iops_stddev_percent)
+    
+    # ---------- 处理带宽(Bandwidth)数据(如果存在) ----------
+    scaled_bw_data = None
+    if bw_series_raw:
+        # 计算带宽数据的缩放因子并应用缩放
+        bw_scale_factor = supporting.get_scale_factor_bw(bw_series_raw)
+        scaled_bw_data = supporting.scale_yaxis(bw_series_raw, bw_scale_factor)
+        
+        # 对缩放后的带宽数据进行四舍五入
+        scaled_bw_data["data"] = supporting.round_metric_series(scaled_bw_data["data"])
+        
+        # 使用相同的缩放因子处理带宽标准差
+        bw_stdev_scaled = supporting.scale_yaxis(bw_dev_series_raw, bw_scale_factor)
+        bw_stdev_scaled_rounded = supporting.round_metric_series(bw_stdev_scaled["data"])
+        
+        # 将带宽标准差转换为百分比并四舍五入
+        bw_dev_percent = supporting.raw_stddev_to_percent(
+            scaled_bw_data["data"], bw_stdev_scaled_rounded
+        )
+        bw_dev_percent = [int(x) for x in bw_dev_percent]
+        scaled_bw_data["stddev"] = supporting.round_metric_series(bw_dev_percent)
 
-    datadict["y1_axis"] = {
-        "data": iops_series_rounded,
-        "format": "IOPS",
-        "stddev": iops_stdev_rounded_percent,
-    }
+    # ---------- 处理稳态数据(如果存在) ----------
+    if "ss_settings" in datadict.keys() and datadict["ss_settings"]:
+        # 缩放和四舍五入带宽数据
+        ss_bw_scalefactor = supporting.get_scale_factor_bw_ss(ss_data_bw_mean)
+        ss_data_bw_mean = supporting.scale_yaxis(ss_data_bw_mean, ss_bw_scalefactor)
+        ss_data_bw_mean["data"] = supporting.round_metric_series(ss_data_bw_mean["data"])
+        
+        # 缩放和四舍五入IOPS数据
+        ss_iops_scalefactor = supporting.get_scale_factor_iops(ss_data_iops_mean)
+        ss_data_iops_mean = supporting.scale_yaxis(ss_data_iops_mean, ss_iops_scalefactor)
+        ss_data_iops_mean["data"] = supporting.round_metric_series(ss_data_iops_mean["data"])
 
-    datadict["y2_axis"] = scaled_latency_data
+    # ---------- 构建返回结果 ----------
+    # 设置y1轴数据(IOPS)
+    datadict["y1_axis"] = scaled_iops_data
+    
+    # 设置y2轴数据(延迟)
+    #datadict["y2_axis"] = scaled_latency_data
+    datadict["y2_axis"] = scaled_bw_data
+    
+    # 保留CPU数据
     if cpu_sys and cpu_usr:
         datadict["cpu"] = {"cpu_sys": cpu_sys, "cpu_usr": cpu_usr}
-
-    if "ss_settings" in datadict.keys():
-        if datadict["ss_settings"]:
-            datadict["ss_data_bw_mean"] = ss_data_bw_mean
-            datadict["ss_data_iops_mean"] = ss_data_iops_mean
+    
+    # 添加处理后的稳态数据(如果存在)
+    if "ss_settings" in datadict.keys() and datadict["ss_settings"]:
+        datadict["ss_data_bw_mean"] = ss_data_bw_mean
+        datadict["ss_data_iops_mean"] = ss_data_iops_mean
 
     return datadict
 

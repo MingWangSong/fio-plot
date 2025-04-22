@@ -90,8 +90,8 @@ def scale_yaxis(dataset, scale):
 def get_scale_factor_iops(dataset):
     mean = statistics.mean(dataset)
     scale_factors = [
-        {"scale": 1000000, "label": "M IOPs"},
-        {"scale": 1000, "label": "K IOPs"},
+        {"scale": 1000000, "label": "IOPS(M)"},
+        {"scale": 1000, "label": "IOPS(K)"},
         {"scale": 1, "label": "IOPs"},
     ]
 
@@ -106,9 +106,9 @@ def get_scale_factor_iops(dataset):
 def get_scale_factor_bw(dataset):
     mean = statistics.mean(dataset)
     scale_factors = [
-        {"scale": 1048576, "label": "GB/s"},
-        {"scale": 1024, "label": "MB/s"},
-        {"scale": 1, "label": "KB/s"},
+        {"scale": 1048576, "label": "BW(GB/s)"},
+        {"scale": 1024, "label": "BW(MB/s)"},
+        {"scale": 1, "label": "BW(KB/s)"},
     ]
 
     for item in scale_factors:

@@ -33,7 +33,7 @@ def create_cpu_table(settings, data, ax2, fontsize):
 def create_values_table(settings, data, ax2, fontsize):
     iops = ts.scale_iops(data["y1_axis"]["data"])
     table_vals = [data["x_axis"], iops, data["y2_axis"]["data"]]
-    rowlabels = ["IOPs/Lat", data["y1_axis"]["format"], data["y2_axis"]["format"]]
+    rowlabels = [settings["query"], data["y1_axis"]["format"], data["y2_axis"]["format"]]
     if "hostname_series" in data.keys():
         if data["hostname_series"]:
             tabledata = ts.create_data_for_table_with_hostname_data(settings, data, "data")
@@ -49,7 +49,7 @@ def create_stddev_table(settings, data, ax2, fontsize):
         return None
     table_vals = [data["x_axis"], data["y1_axis"]["stddev"], data["y2_axis"]["stddev"]]    
     table_name = settings["label"]
-    rowlabels = [table_name, "IOP/s \u03C3 %", "Latency \u03C3 %"]
+    rowlabels = [table_name, data["y1_axis"]["format"]+" \u03C3 %", data["y2_axis"]["format"]+" \u03C3 %"]
     if "hostname_series" in data.keys():
         if data["hostname_series"]:
             tabledata = ts.create_data_for_table_with_hostname_data(settings, data, "stddev")
