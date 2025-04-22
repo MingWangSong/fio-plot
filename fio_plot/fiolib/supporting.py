@@ -485,7 +485,19 @@ def save_png(settings, plt, fig):
     now = datetime.now().strftime("%Y-%m-%d_%H%M%S")
     title = settings["title"].replace(" ", "-")
     title = title.replace("/", "-")
-    plt.tight_layout(rect=[0, 0, 1, 1])
+    
+    # 修改tight_layout设置，为左右边距提供更多空间
+    try:
+        # 尝试使用较大的左右边距
+        plt.tight_layout(rect=[0.05, 0, 0.95, 1])
+    except Exception as e:
+        print(f"Warning: Could not apply tight_layout with adjusted margins: {e}")
+        # 如果仍然失败，回退到手动设置边距
+        try:
+            fig.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
+        except Exception as e2:
+            print(f"Warning: Could not adjust margins manually: {e2}")
+    
     random = random_char(2)
     if settings["output_filename"] is None or len(settings["output_filename"]) == 0:
         savename = f"{title}_{now}_{random}.png"

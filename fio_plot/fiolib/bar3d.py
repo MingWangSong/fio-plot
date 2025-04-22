@@ -131,6 +131,13 @@ def plot_3d(settings, dataset):
     # Create the 3D chart with positioning and colors
     cmap = plt.get_cmap("rainbow", xpos.ravel().shape[0])
     colors = cm.rainbow(values)
+    # 使用matplotlib的bar3d函数创建3D柱状图
+    # xpos_f, ypos_f: x和y轴的位置坐标(扁平化的数组)
+    # zpos: z轴的起始位置(全为0,表示从底部开始)
+    # dx, dy: 柱子的x和y方向的宽度
+    # dz: 柱子的高度值
+    # color: 使用前面定义的colors数组来为每个柱子着色
+    # zsort="max": 确保柱子按z值大小正确排序和渲染
     ax1.bar3d(xpos_f, ypos_f, zpos, dx, dy, dz, color=colors, zsort="max")
 
     # Create the color bar to the right
