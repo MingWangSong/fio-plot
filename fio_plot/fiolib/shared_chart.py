@@ -266,10 +266,10 @@ def get_record_set(settings, dataset, dataset_types):
                         mismatch+=1
 
     validate_get_record_set(settings, mismatch, dataset)
-    return scale_data(datadict)
+    return scale_data(datadict, settings["type"])
 
 
-def scale_data(datadict):
+def scale_data(datadict, type):
 
         # 验证数据是否存在
     if not datadict['fio_version']:
@@ -347,6 +347,7 @@ def scale_data(datadict):
         bw_stdev_scaled = supporting.scale_yaxis(bw_dev_series_raw, bw_scale_factor)
         bw_stdev_scaled_rounded = supporting.round_metric_series(bw_stdev_scaled["data"])
         
+        
         # 将带宽标准差转换为百分比并四舍五入
         bw_dev_percent = supporting.raw_stddev_to_percent(
             scaled_bw_data["data"], bw_stdev_scaled_rounded
@@ -367,12 +368,23 @@ def scale_data(datadict):
         ss_data_iops_mean["data"] = supporting.round_metric_series(ss_data_iops_mean["data"])
 
     # ---------- 构建返回结果 ----------
-    # 设置y1轴数据(IOPS)
-    datadict["y1_axis"] = scaled_iops_data
+    # 根据type参数设置y1_axis和y2_axis
+    data_options = {
+        'iops': scaled_iops_data,
+        'lat': scaled_latency_data,
+        'bw': scaled_bw_data
+    }
     
-    # 设置y2轴数据(延迟)
-    #datadict["y2_axis"] = scaled_latency_data
+    # 设置默认值
+    datadict["y1_axis"] = scaled_iops_data
     datadict["y2_axis"] = scaled_bw_data
+    
+    # 如果type是列表且有足够的元素，根据type设置y轴数据
+    if isinstance(type, list) and len(type) >= 2:
+        if type[0] in data_options and data_options[type[0]]:
+            datadict["y1_axis"] = data_options[type[0]]
+        if type[1] in data_options and data_options[type[1]]:
+            datadict["y2_axis"] = data_options[type[1]]
     
     # 保留CPU数据
     if cpu_sys and cpu_usr:

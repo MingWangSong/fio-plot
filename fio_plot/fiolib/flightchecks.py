@@ -45,6 +45,8 @@ def run_preflight_checks(settings):
             if (
                 not settings["graphtype"] == "loggraph"
                 and not settings["graphtype"] == "bargraph3d"
+                and not settings["graphtype"] == "bargraph2d_qd"
+                and not settings["graphtype"] == "bargraph2d_nj"
             ):
                 print("\n The -t parameter only works with -g or -L style graphs\n")
                 sys.exit(1)
