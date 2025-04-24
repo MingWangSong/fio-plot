@@ -85,7 +85,7 @@ def get_record_set_3d(settings, dataset, dataset_types, rw, metric):
                 "Since we are processing randrw data, you must specify a "
                 "filter for either read or write data, not both."
             )
-            exit(1)
+            sys.exit(1)
 
     for depth in dataset_types["iodepth"]:
         row = []
@@ -118,7 +118,7 @@ def get_record_set_improved(settings, dataset, dataset_types):
                 f"Since we are processing {settings['rw']} data, you must specify a"
                 " filter for either read or write data, not both."
             )
-            exit(1)
+            sys.exit(1)
 
     labels = []
     # This is mostly for debugging purposes.
@@ -212,7 +212,7 @@ def get_record_set(settings, dataset, dataset_types):
                 "Since we are processing randrw data, you must specify a filter for either"
                 "read or write data, not both."
             )
-            exit(1)
+            sys.exit(1)
 
     datadict = return_empty_data_dict(settings, dataset_types)    
 

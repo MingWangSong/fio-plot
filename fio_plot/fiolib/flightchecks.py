@@ -174,6 +174,6 @@ def post_flight_check(parser, option_found):
     if not option_found:
         parser.print_help()
         print("Specify -g, -l, -L, -C or -H")
-        exit(1)
+        sys.exit(1)
     else:
-        exit(0)
+        sys.exit(0)

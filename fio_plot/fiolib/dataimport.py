@@ -120,7 +120,7 @@ def filterLogFiles(settings, file_list):
         print(
             f"Check parameters iodepth {settings['iodepth']} and numjobs {settings['numjobs']}?\n"
         )
-        exit(1)
+        sys.exit(1)
 
 
 def mergeSingleDataSet(data, datatype):

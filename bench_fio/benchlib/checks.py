@@ -46,7 +46,7 @@ def check_encoding():
         print("Or you can run the script like: PYTHONIOENCODING=utf-8 ./bench_fio")
         print("Changing the default encoding could affect other applications, beware.")
         print()
-        exit(90)
+        sys.exit(90)
 
 
 def check_target_type(target, settings):
@@ -60,7 +60,7 @@ def check_target_type(target, settings):
 
     if not filetype in types:
         print(f"Error, filetype {filetype} is an unknown option.")
-        exit(123)
+        sys.exit(123)
 
     if not os.path.exists(target) and not settings["remote"] and not settings["create"]:
         print(f"Benchmark target {filetype} {target} does not exist.")
