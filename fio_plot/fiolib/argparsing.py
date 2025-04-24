@@ -39,16 +39,15 @@ def set_arguments(settings):
         "-l",
         "--bargraph2d-qd",
         action="store_true",
-        help="\
-            Generates a 2D barchart of IOPs and latency for all queue depths given a particular numjobs value.",
+        help="A 2D bar graph representing IOPs, latency, or bandwidth for all queue depths is generated given a numjobs value. \
+                The -n parameter sets numjobs, and the -t parameter sets the Y-axis value.",
     )
     exclusive_group.add_argument(
         "-N",
         "--bargraph2d_nj",
         action="store_true",
-        help="This graph type is like the \
-        latency-iops-2d-qd barchart but instead of plotting queue depths for a particular numjobs value, it plots \
-            numjobs values for a particular queue depth.",
+        help="A 2D bar graph representing IOPs, latency, or bandwidth for all queue numjobs is generated given a iodepth value. \
+            The -d parameter sets iodepth, and the -t parameter sets the Y-axis value",
     )
     exclusive_group.add_argument(
         "-H",
