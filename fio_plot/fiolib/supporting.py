@@ -364,22 +364,21 @@ def create_title_and_sub(
     #
     # Offset title/subtitle if there is a 3rd y-axis
     #
-    number_of_types = len(settings["type"])
-    y_offset = 1.02
-    if number_of_types <= 2:
-        x_offset = 0.5
-    else:
+    number_of_types = len(settings["type"]) if isinstance(settings["type"], list) else 0
+    
+    # 设置x位置，在有三个以上Y轴时调整
+    x_offset = 0.5
+    if number_of_types > 2:
         x_offset = 0.425
-
     if sub_x_offset > 0:
         x_offset = sub_x_offset
-    if sub_y_offset > 0:
-        y_offset = sub_y_offset
 
     #
-    # plt.subtitle sets title and plt.title sets subtitle ....
+    # 设置主标题
     #
-    plt.suptitle(settings["title"], fontsize=settings["title_fontsize"])
+    plt.suptitle(settings["title"], fontsize=settings["title_fontsize"], y=0.98)
+    
+    # 准备子标题内容
     subtitle = None
     if bs:
         str(bs).strip("[]")
@@ -410,12 +409,13 @@ def create_title_and_sub(
                     temporary_string += f" {key} {sub_title_items[key]} |"
         subtitle = temporary_string
 
+    # 设置子标题，使用pad参数来控制与主标题的距离
     plt.title(
         subtitle,
         fontsize=settings["subtitle_fontsize"],
         horizontalalignment="center",
         x=x_offset,
-        y=y_offset,
+        pad=8  # 控制与图表的距离
     )
 
 

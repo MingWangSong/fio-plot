@@ -377,14 +377,19 @@ def scale_data(datadict, type):
     
     # 设置默认值
     datadict["y1_axis"] = scaled_iops_data
-    datadict["y2_axis"] = scaled_bw_data
+    datadict["y2_axis"] = scaled_latency_data if scaled_latency_data else scaled_bw_data
     
-    # 如果type是列表且有足够的元素，根据type设置y轴数据
-    if isinstance(type, list) and len(type) >= 2:
-        if type[0] in data_options and data_options[type[0]]:
-            datadict["y1_axis"] = data_options[type[0]]
-        if type[1] in data_options and data_options[type[1]]:
-            datadict["y2_axis"] = data_options[type[1]]
+    # 处理type参数，设置相应的y轴数据
+    if isinstance(type, list):
+        if len(type) == 1:  # 单Y轴的情况
+            if type[0] in data_options and data_options[type[0]]:
+                datadict["y1_axis"] = data_options[type[0]]
+                datadict["y2_axis"] = None  # 只有一个Y轴，设置第二个为None
+        elif len(type) >= 2:  # 双Y轴的情况
+            if type[0] in data_options and data_options[type[0]]:
+                datadict["y1_axis"] = data_options[type[0]]
+            if type[1] in data_options and data_options[type[1]]:
+                datadict["y2_axis"] = data_options[type[1]]
     
     # 保留CPU数据
     if cpu_sys and cpu_usr:

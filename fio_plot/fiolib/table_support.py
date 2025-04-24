@@ -76,7 +76,13 @@ def create_data_for_table_with_hostname_data(settings, data, type):
     hostmetric = get_host_metric_data(data)
     returndata["hostnames"] = [ x["hostname"] for x in hostmetric ]
     returndata["metric"] = [ x["value"] for x in hostmetric ]
-    returndata["table_vals"] = [ returndata["hostnames"], returndata["metric"], data["y1_axis"][type], data["y2_axis"][type]]
+    
+    # 检查是否为单Y轴情况
+    if data["y2_axis"] is None:
+        returndata["table_vals"] = [ returndata["hostnames"], returndata["metric"], data["y1_axis"][type] ]
+    else:
+        returndata["table_vals"] = [ returndata["hostnames"], returndata["metric"], data["y1_axis"][type], data["y2_axis"][type] ]
+        
     returndata["metricname"] = f"{settings['graphtype'][-2:]}"
     return returndata
 

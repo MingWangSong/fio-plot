@@ -31,31 +31,70 @@ def create_cpu_table(settings, data, ax2, fontsize):
 
 
 def create_values_table(settings, data, ax2, fontsize):
-    iops = ts.scale_iops(data["y1_axis"]["data"])
-    table_vals = [data["x_axis"], iops, data["y2_axis"]["data"]]
-    rowlabels = [settings["query"], data["y1_axis"]["format"], data["y2_axis"]["format"]]
-    if "hostname_series" in data.keys():
-        if data["hostname_series"]:
-            tabledata = ts.create_data_for_table_with_hostname_data(settings, data, "data")
-            table_vals = tabledata["table_vals"]
-            metricname = tabledata["metricname"]
-            rowlabels = [ "Hostname", metricname , "IOP/s", "Latency"]
+    # 检查y2_axis是否为None（单Y轴情况）
+    if data["y2_axis"] is None:
+        iops = ts.scale_iops(data["y1_axis"]["data"])
+        table_vals = [data["x_axis"], iops]
+        rowlabels = [settings["query"], data["y1_axis"]["format"]]
+        if "hostname_series" in data.keys():
+            if data["hostname_series"]:
+                tabledata = ts.create_data_for_table_with_hostname_data(settings, data, "data")
+                table_vals = tabledata["table_vals"]
+                metricname = tabledata["metricname"]
+                # 根据单Y轴情况调整标签
+                rowlabels = ["Hostname", metricname, "IOP/s"]
+    else:
+        iops = ts.scale_iops(data["y1_axis"]["data"])
+        table_vals = [data["x_axis"], iops, data["y2_axis"]["data"]]
+        rowlabels = [settings["query"], data["y1_axis"]["format"], data["y2_axis"]["format"]]
+        if "hostname_series" in data.keys():
+            if data["hostname_series"]:
+                tabledata = ts.create_data_for_table_with_hostname_data(settings, data, "data")
+                table_vals = tabledata["table_vals"]
+                metricname = tabledata["metricname"]
+                rowlabels = ["Hostname", metricname, "IOP/s", "Latency"]
+    
     location = "lower right"
     create_generic_table(settings, data, table_vals, ax2, rowlabels, location, fontsize)
 
 
 def create_stddev_table(settings, data, ax2, fontsize):
-    if not data["y2_axis"]["stddev"] or settings["show_ss"]:
+    # 检查不应该显示表格的情况
+    if settings["show_ss"]:
         return None
-    table_vals = [data["x_axis"], data["y1_axis"]["stddev"], data["y2_axis"]["stddev"]]    
-    table_name = settings["label"]
-    rowlabels = [table_name, data["y1_axis"]["format"]+" \u03C3 %", data["y2_axis"]["format"]+" \u03C3 %"]
-    if "hostname_series" in data.keys():
-        if data["hostname_series"]:
-            tabledata = ts.create_data_for_table_with_hostname_data(settings, data, "stddev")
-            table_vals = tabledata["table_vals"]
-            metricname = tabledata["metricname"]
-            rowlabels = [ "Hostname", metricname , "IOP/s \u03C3 %", "Latency \u03C3 %"]
+    
+    # 检查是否为单Y轴情况
+    if data["y2_axis"] is None:
+        # 检查是否有标准差数据
+        if not data["y1_axis"]["stddev"]:
+            return None
+            
+        table_vals = [data["x_axis"], data["y1_axis"]["stddev"]]    
+        table_name = settings["label"]
+        rowlabels = [table_name, data["y1_axis"]["format"]+" \u03C3 %"]
+        
+        if "hostname_series" in data.keys():
+            if data["hostname_series"]:
+                tabledata = ts.create_data_for_table_with_hostname_data(settings, data, "stddev")
+                table_vals = tabledata["table_vals"]
+                metricname = tabledata["metricname"]
+                rowlabels = ["Hostname", metricname, data["y1_axis"]["format"]+" \u03C3 %"]
+    else:
+        # 双Y轴情况
+        if not data["y2_axis"]["stddev"]:
+            return None
+            
+        table_vals = [data["x_axis"], data["y1_axis"]["stddev"], data["y2_axis"]["stddev"]]    
+        table_name = settings["label"]
+        rowlabels = [table_name, data["y1_axis"]["format"]+" \u03C3 %", data["y2_axis"]["format"]+" \u03C3 %"]
+        
+        if "hostname_series" in data.keys():
+            if data["hostname_series"]:
+                tabledata = ts.create_data_for_table_with_hostname_data(settings, data, "stddev")
+                table_vals = tabledata["table_vals"]
+                metricname = tabledata["metricname"]
+                rowlabels = ["Hostname", metricname, "IOP/s \u03C3 %", "Latency \u03C3 %"]
+    
     location = "lower right"
     create_generic_table(settings, data, table_vals, ax2, rowlabels, location, fontsize)
 
