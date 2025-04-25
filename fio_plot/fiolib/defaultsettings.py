@@ -9,7 +9,7 @@ def get_default_settings():
     settings["maxjob"] = 64
     settings["filter"] = ['read','write']
     settings["type"] = []
-    settings["dpi"] = 200
+    settings["dpi"] = 300
     settings["percentile"] = 99.99
     settings["moving_average"] = None
     settings["max_z"] = None
@@ -20,12 +20,12 @@ def get_default_settings():
     settings["xlabel_parent"] = 1
     settings["xlabel_segment_size"] = 1000
     settings["xlabel_single_column"] = False
-    settings["line_width"] = 1
+    settings["line_width"] = 1.5
     settings["group_bars"] = False
     settings["show_cpu"] = False
     settings["show_data"] = False
     settings["show_ss"] = False
-    settings["table_lines"] = False 
+    settings["table_lines"] = True 
     settings["max_lat"] = None
     settings["max_clat"] = None
     settings["max_slat"] = None
@@ -34,15 +34,17 @@ def get_default_settings():
     settings["draw_total"] = False
     settings["colors"] = [None]
     settings["disable_fio_version"] = False
-    settings["title_fontsize"] = 16
-    settings["subtitle_fontsize"] = 10
-    settings["source_fontsize"] = 8
+    settings["title_fontsize"] = 18
+    settings["subtitle_fontsize"] = 12
+    settings["source_fontsize"] = 9
     settings["credit_fontsize"] = 10
-    settings["table_fontsize"] = 8
-    settings["tablecolumn_spacing"] = 0.01
+    settings["table_fontsize"] = 9
+    settings["tablecolumn_spacing"] = 0.02
     settings["include_hosts"] = None
     settings["exclude_hosts"] = None
     settings["colors"] = None
+    settings["science_style"] = True
+    settings["color_scheme"] = "science"
     return settings
 
 def get_graphtype(settings):

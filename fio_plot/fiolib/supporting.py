@@ -358,9 +358,7 @@ def get_highest_maximum(settings, data):
     return highest_max
 
 
-def create_title_and_sub(
-    settings, plt, bs=None, skip_keys=[], sub_x_offset=0, sub_y_offset=0
-):
+def create_title_and_sub(settings, plt, ax, bs=None, skip_keys=[], sub_x_offset=0, sub_y_offset=0):
     #
     # Offset title/subtitle if there is a 3rd y-axis
     #
@@ -372,12 +370,7 @@ def create_title_and_sub(
         x_offset = 0.425
     if sub_x_offset > 0:
         x_offset = sub_x_offset
-
-    #
-    # 设置主标题
-    #
-    plt.suptitle(settings["title"], fontsize=settings["title_fontsize"], y=0.98)
-    
+   
     # 准备子标题内容
     subtitle = None
     if bs:
@@ -409,13 +402,25 @@ def create_title_and_sub(
                     temporary_string += f" {key} {sub_title_items[key]} |"
         subtitle = temporary_string
 
-    # 设置子标题，使用pad参数来控制与主标题的距离
-    plt.title(
-        subtitle,
-        fontsize=settings["subtitle_fontsize"],
-        horizontalalignment="center",
-        x=x_offset,
-        pad=8  # 控制与图表的距离
+    # 设置子标题
+    if ax is None:
+        plt.title(
+            subtitle,
+            fontsize=settings["subtitle_fontsize"],
+            horizontalalignment="center"
+        )
+    else:
+        ax.set_title(
+            subtitle,
+            fontsize=settings["subtitle_fontsize"],
+            horizontalalignment="center"
+        )
+
+    # 设置主标题，使用更美观的样式
+    plt.suptitle(
+        settings["title"], 
+        fontsize=settings["title_fontsize"], 
+        fontweight='bold'  # 使主标题加粗，更加醒目
     )
 
 

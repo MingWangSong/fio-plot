@@ -181,6 +181,7 @@ def plot_3d(settings, dataset):
     supporting.create_title_and_sub(
         settings,
         plt,
+        None,
         skip_keys=["iodepth", "numjobs"],
         sub_x_offset=0.57,
         sub_y_offset=1.15,

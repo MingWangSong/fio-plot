@@ -29,8 +29,9 @@ def get_max_width(dataset, cols):
 
 def calculate_colwidths(settings, cols, matrix):
     collist = []
+    max_matrix = max(matrix)
     for item in matrix:
-        value = item * settings["tablecolumn_spacing"]
+        value = max_matrix * settings["tablecolumn_spacing"]
         collist.append(value)
     return collist
 
