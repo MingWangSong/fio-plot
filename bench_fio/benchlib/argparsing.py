@@ -46,12 +46,6 @@ def get_arguments(settings):
         required=True,
     )
     ag.add_argument(
-        "-P",
-        "--ceph-pool",
-        help="Specify the Ceph pool in wich the target rbd image resides.",
-        type=str,
-    )
-    ag.add_argument(
         "-s",
         "--size",
         help="File size if target is a file. The value is passed straight to the fio --size parameter.\
@@ -96,35 +90,6 @@ def get_arguments(settings):
         f"(default: {settings['runtime']})",
         type=int,
         default=settings["runtime"],
-    )
-
-    ag.add_argument(
-        "-p",
-        "--precondition",
-        action="store_true",
-        help=(
-            "With this option you can specify an SSD precondition workload prior to performing actual"
-            "benchmarks. If you don't precondition SSDs before running a benchmark, results may not"
-            f"reflect actual real-life performance under sustained load. (default: {str(settings['precondition'])})."
-        ),
-    )
-
-    ag.add_argument(
-        "--precondition-repeat",
-        action="store_true",
-        help=(
-            "After every individual benchmark, the preconditioning run is executed (again). (Default: False)."
-        ),
-    )
-
-    ag.add_argument(
-        "--precondition-template",
-        help=(
-            "The Fio job template containing the precondition workload"
-            f"(default={settings['precondition_template']}"
-        ),
-        default=settings['precondition_template'],
-        type=str,
     )
 
     ag.add_argument(
@@ -219,25 +184,8 @@ def get_arguments(settings):
         help="Allows you to add extra options, \
         for example, options that are specific to the selected ioengine. It \
              can be any other Fio option. Example: --extra-opts norandommap=1 invalidate=0\
-                 this can also be specified in the bench-fio ini file",
+                 this can also be specified in the fio-autotest ini file",
         nargs="+",
-    )
-    ag.add_argument(
-        "--invalidate",
-        type=int,
-        help=f"From the Fio manual: Invalidate buffer-cache for the \
-                        file prior to starting I/O.(Default: {settings['invalidate']})",
-        default=settings["invalidate"],
-    )
-    ag.add_argument(
-        "--quiet", help="The progresbar will be supressed.", action="store_true"
-    )
-    ag.add_argument(
-        "--loginterval",
-        help=f"Interval that specifies how often stats are \
-            logged to the .log files. (Default: {settings['loginterval']}",
-        type=int,
-        default=settings["loginterval"],
     )
     ag.add_argument(
         "--dry-run",
@@ -278,7 +226,7 @@ def get_arguments(settings):
     )
     ag.add_argument(
         "--create",
-        help="Create target files if they don't exist. This is the default for fio but not for bench_fio",
+        help="Create target files if they don't exist. This is the default for fio but not for fio-autotest",
         action="store_true",
         default=False,
     )
@@ -304,21 +252,14 @@ def get_argument_description():
         "rwmixread": "Read/write mix in %% read",
         "runtime": "Time duration per test (s)",
         "extra_opts": "Extra custom options",
-        "loginterval": "Log interval of perf data (ms)",
-        "invalidate": "Invalidate buffer cache",
         "loops": "Benchmark loops",
         "type": "Target type",
         "output": "Output folder",
         "time_based": "Time based",
-        "benchmarks": "Number of benchmarks",
-        "precondition": "Run precondition workload",
-        "precondition_template": "Precondition template",
-        "precondition_repeat": "Precondition after each test",
         "ss": "Detect steady state",
         "ss_dur": "Steady state rolling window",
         "ss_ramp": "Steady state rampup",
         "entire_device": "Benchmark entire device",
-        "ceph_pool": "Ceph RBD pool",
         "destructive": "Allow destructive writes",
         "remote":"Use remote server",
         "remote_checks": "Check remote for open TCP port",
